@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Page loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        #root {
+            padding: 20px;
+        }
+
+        .loader {
+            width: 100px;
+            height: 100px;
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #3498db;
+            border-radius: 50%;
+            animation: pulse 1s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            20% {
+                transform: scale(1);
+                border-color: #3498db;
+            }
+
+            50% {
+                transform: scale(1.2);
+                border-color: #e74c3c;
+            }
+
+            100% {
+                transform: scale(1);
+                border-color: #2ecc71;
+            }
+        }
+
+        .error-message {
+            font-size: 24px;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="notification" style="display: none;"></div>
+    <div id="loader" class="loader"></div>
+    <div id="root" style="display: none;"></div>
+    <script src="src/bundle.js"></script>
+    <script>
+        const root = document.getElementById('root');
+        const loader = document.getElementById('loader');
+        let loadTimeout;
+
+        function hideLoader() {
+            loader.style.display = 'none';
+            root.style.display = 'block';
+            clearTimeout(loadTimeout);
+        }
+
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' && root.children.length > 0) {
+                    hideLoader();
+                    break;
+                }
+            }
+        });
+
+        observer.observe(root, { childList: true });
+
+        // Show an error message if loading takes longer than 5 seconds
+        loadTimeout = setTimeout(() => {
+            loader.style.display = 'none';
+            const errorMessage = document.createElement('div');
+            errorMessage.classList.add('error-message');
+            errorMessage.innerHTML = 'Error: Loading took too long. Please try refreshing the page or check the URL.';
+            root.appendChild(errorMessage);
+        }, 5000);
+    </script>
+</body>
+
+</html>
